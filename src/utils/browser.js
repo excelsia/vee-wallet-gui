@@ -7,7 +7,8 @@ export default {
         if (!num.toString().includes('.')) {
             return num.toFixed(2)
         } else {
-            return num
+            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
+            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
         }
     }
 }

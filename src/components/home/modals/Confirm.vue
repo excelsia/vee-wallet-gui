@@ -10,7 +10,7 @@
                     label="Amount"
                     label-for="amount_confirm">
         <b-form-input id="amount_confirm"
-                      :value="amount + ' VEE'"
+                      :value="toNonExponential(amount) + ' VEE'"
                       class="amount"
                       readonly
                       :plaintext="true">
@@ -109,6 +109,12 @@ export default {
             require: true,
             default: ''
         }
+    },
+    methods: {
+        toNonExponential(num) {
+            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
+            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
+        }
     }
 }
 </script>
@@ -123,10 +129,6 @@ export default {
     height: 48px;
     text-align: center;
     padding-top: 5px;
-}
-.box {
-
-    overflow-x: visible;
 }
 .infos {
     width: 439px;

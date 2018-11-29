@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { TESTNET_NODE, VEE_PRECISION } from '../../../constants'
+import { TESTNET_NODE } from '../../../constants'
 import Record from './Record'
 import Vue from 'vue'
 import JsonExcel from 'vue-json-excel'
@@ -147,7 +147,7 @@ export default {
                 'timestamp(in nano second)': 'timestamp',
                 recipient_address: 'recipient',
                 amount: 'amount',
-                attachment: 'attachment'
+                encrypted_attachment: 'attachment'
             },
             transType: 'payment',
             myHeight: '0',
@@ -204,9 +204,10 @@ export default {
                             if (!rv[aa]) {
                                 Vue.set(rv, aa, [])
                             }
-                            rv[aa].push(JSON.parse(JSON.stringify(x)))
+                            rv[aa].push(x)
+                            /* rv[aa].push(JSON.parse(JSON.stringify(x)))
                             x['fee'] = x['fee'] / VEE_PRECISION
-                            x['amount'] = x['amount'] / VEE_PRECISION
+                            x['amount'] = x['amount'] / VEE_PRECISION */
                             return rv
                         }, {})
                         this.changeShowDisable = false

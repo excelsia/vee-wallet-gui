@@ -39,15 +39,16 @@
                width="60px"
                height="60px">
         </div>
-        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ txAmount }} vee</div>
+        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ toNonExponential(txAmount) }} vee</div>
       </div>
-      <div class="tx-address">
+      <div class="tx-address"
+           v-if="!txIcon==='self'">
         <label>{{ (txIcon === 'received' || txIcon === 'leased in' || txIcon === 'leased in canceled') ? 'From' : 'To' }}</label>
         <span>{{ txAddress }}</span>
       </div>
       <div class="tx-block">
         <label>Timestamp</label>
-        <span>{{ new Date(txTime / 1000000).toGMTString() }}</span>
+        <span>{{ new Date(txTime / 1000000).toLocaleString() }}</span>
       </div>
       <div class="tx-fee">
         <label>Fee</label>
@@ -57,6 +58,14 @@
            v-if="txIcon === 'sent' || txIcon === 'received'">
         <label>Attachment</label>
         <span>{{ txAttachment }}</span>
+      </div>
+      <div class="tx-attachment">
+        <label>ID</label>
+        <span>{{ modalId }}</span>
+      </div>
+      <div class="tx-attachment">
+        <label>Block Height</label>
+        <span>{{ txBlock }}</span>
       </div>
     </div>
   </b-modal>
@@ -97,6 +106,10 @@ export default {
         transType: {
             type: String,
             default: 'payment'
+        },
+        txBlock: {
+            type: Number,
+            default: 0
         }
     },
     computed: {
@@ -107,6 +120,10 @@ export default {
     methods: {
         closeModal() {
             this.$refs.infoModal.hide()
+        },
+        toNonExponential(num) {
+            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
+            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
         }
     }
 }
