@@ -25,7 +25,7 @@
                width="20"
                height="20">
         </span>
-        <span class="balance">{{ walletType === 'hot' ? balances[address] : balances[coldAddress] }} VEE</span>
+        <span class="balance">{{ formatter(Number(walletType === 'hot' ? balances[address] : balances[coldAddress])) }} VEE</span>
       </b-btn>
     </b-form-group>
     <b-form-group label="Recipient"
@@ -86,7 +86,7 @@
       </b-form-invalid-feedback>
     </b-form-group>
     <b-form-group>
-      <label class="fee-remark">Transaction Fee {{ fee }} VEE</label>
+      <label class="fee-remark">Transaction Fee {{ formatter(Number(fee)) }} VEE</label>
     </b-form-group>
     <b-button variant="warning"
               class="btn-continue"
@@ -101,6 +101,7 @@
 <script>
 import { TX_FEE } from '@/constants'
 import crypto from '@/utils/crypto'
+import browser from '../../../utils/browser'
 
 export default {
     name: 'LeaseInput',
@@ -235,7 +236,7 @@ export default {
             return !isNaN(Number(amount)) && !this.isWrongFormat(amount) && !this.isInsufficient(amount, type)
         },
         isWrongFormat(amount) {
-            if (amount.toString().split('.')[1] && amount.toString().split('.')[1].length > 8) {
+            if ((amount.toString().split('.')[1] && amount.toString().split('.')[1].length > 8) || /[eE]/.test(amount.toString())) {
                 return true
             } else {
                 return false
@@ -268,6 +269,9 @@ export default {
             this.paused = false
             this.address = this.selectedWalletType === 'hotWallet' ? this.selectedAddress : this.defaultAddress
             this.coldAddress = this.selectedWalletType === 'coldWallet' ? this.selectedAddress : this.defaultColdAddress
+        },
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

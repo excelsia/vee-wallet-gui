@@ -52,6 +52,7 @@
 import Receive from '../modals/Receive'
 import Send from '../modals/Send'
 import browser from '../../../utils/browser'
+
 export default {
     name: 'TransPane',
     components: {

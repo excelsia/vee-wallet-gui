@@ -10,7 +10,7 @@
                     label="Amount"
                     label-for="amount_confirm">
         <b-form-input id="amount_confirm"
-                      :value="toNonExponential(amount) + ' VEE'"
+                      :value="formatter(amount) + ' VEE'"
                       class="amount"
                       readonly
                       :plaintext="true">
@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import browser from '../../../utils/browser'
 export default {
     name: 'Confirm',
     props: {
@@ -111,9 +112,8 @@ export default {
         }
     },
     methods: {
-        toNonExponential(num) {
-            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

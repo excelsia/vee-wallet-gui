@@ -39,7 +39,7 @@
                width="60px"
                height="60px">
         </div>
-        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ toNonExponential(txAmount) }} vee</div>
+        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ formatter(txAmount) }} vee</div>
       </div>
       <div class="tx-address"
            v-if="!txIcon==='self'">
@@ -72,6 +72,8 @@
 </template>
 
 <script>
+import browser from '../../../utils/browser'
+
 export default {
     name: 'TxInfoModal',
     props: {
@@ -121,9 +123,8 @@ export default {
         closeModal() {
             this.$refs.infoModal.hide()
         },
-        toNonExponential(num) {
-            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

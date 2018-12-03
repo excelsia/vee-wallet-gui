@@ -38,7 +38,7 @@
                      width="20"
                      height="20">
               </span>
-              <span class="balance">{{ balances[address] }} VEE</span>
+              <span class="balance">{{ formatter(Number(balances[address])) }} VEE</span>
             </b-btn>
           </b-form-group>
           <b-form-group label="Recipient"
@@ -103,7 +103,7 @@
             </b-form-textarea>
           </b-form-group>
           <b-form-group>
-            <label class="fee-remark">Transaction Fee {{ fee }} VEE</label>
+            <label class="fee-remark">Transaction Fee {{ formatter(Number(fee)) }} VEE</label>
           </b-form-group>
           <b-button variant="warning"
                     class="btn-continue"
@@ -351,6 +351,7 @@ import Confirm from './Confirm'
 import Success from './Success'
 import crypto from '@/utils/crypto'
 import ColdSignature from './ColdSignature'
+import browser from '../../../utils/browser'
 var initData = {
     recipient: '',
     amount: 0,
@@ -666,6 +667,9 @@ export default {
         },
         getKeypair: function(index) {
             return seedLib.fromExistingPhrasesWithIndex(this.seedPhrase, index).keyPair
+        },
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

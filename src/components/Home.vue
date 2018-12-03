@@ -169,6 +169,7 @@ export default {
             for (const addr in this.coldAddresses) {
                 this.getBalance(addr)
             }
+            this.getBalance(this.selectedAddress)
         }
     },
 

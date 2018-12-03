@@ -64,7 +64,7 @@
              cols="auto">
         <div>
           <span v-if="txIcon === 'sent' || txIcon === 'received'">{{ txIcon === 'sent' ? '-' : '+' }}</span>
-          <span> {{ toNonExponential(txAmount) }} VEE</span>
+          <span> {{ formatter(txAmount) }} VEE</span>
         </div>
       </b-col>
       <b-col class="record-action"
@@ -158,7 +158,7 @@
              cols="auto">
         <div>
           <span >-</span>
-          <span>{{ toNonExponential(txAmountofsent) }} VEE</span>
+          <span>{{ formatter(txAmountofsent) }} VEE</span>
         </div>
       </b-col>
       <b-col class="record-action"
@@ -214,7 +214,7 @@
              cols="auto">
         <div>
           <span >+</span>
-          <span>{{ toNonExponential(txAmount) }} VEE</span>
+          <span>{{ formatter(txAmount) }} VEE</span>
         </div>
       </b-col>
       <b-col class="record-action"
@@ -287,6 +287,7 @@ import { VEE_PRECISION } from '@/constants'
 import crypto from '@/utils/crypto'
 import CancelLease from '../modals/CancelLease'
 import { PAYMENT_TX, LEASE_TX, CANCEL_LEASE_TX } from '../../../constants'
+import browser from '../../../utils/browser'
 
 export default {
     name: 'Record',
@@ -507,9 +508,8 @@ export default {
             this.showCancelDetails = true
             this.$root.$emit('bv::show::modal', 'txInfoModal_cancelLease' + this.txId)
         },
-        toNonExponential(num) {
-            let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }
