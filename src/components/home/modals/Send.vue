@@ -38,7 +38,7 @@
                      width="20"
                      height="20">
               </span>
-              <span class="balance">{{ formatter(Number(balances[address])) }} VEE</span>
+              <span class="balance">{{ formatter(balances[address]) }} VEE</span>
             </b-btn>
           </b-form-group>
           <b-form-group label="Recipient"
@@ -103,7 +103,7 @@
             </b-form-textarea>
           </b-form-group>
           <b-form-group>
-            <label class="fee-remark">Transaction Fee {{ formatter(Number(fee)) }} VEE</label>
+            <label class="fee-remark">Transaction Fee {{ formatter(fee) }} VEE</label>
           </b-form-group>
           <b-button variant="warning"
                     class="btn-continue"

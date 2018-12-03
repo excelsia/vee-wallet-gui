@@ -66,7 +66,7 @@
                     label="Fee"
                     label-for="fee_confirm">
         <b-form-input id="fee_confirm"
-                      :value="fee + 'vee'"
+                      :value="formatter(fee) + 'VEE'"
                       class="fee"
                       readonly
                       :plaintext="true">

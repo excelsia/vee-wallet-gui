@@ -39,7 +39,7 @@
                width="60px"
                height="60px">
         </div>
-        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ formatter(txAmount) }} vee</div>
+        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ formatter(txAmount) }} VEE</div>
       </div>
       <div class="tx-address"
            v-if="!txIcon==='self'">
@@ -52,7 +52,7 @@
       </div>
       <div class="tx-fee">
         <label>Fee</label>
-        <span>{{ txFee || 0 }} vee</span>
+        <span>{{ formatter(txFee || 0) }} VEE</span>
       </div>
       <div class="tx-attachment"
            v-if="txIcon === 'sent' || txIcon === 'received'">
