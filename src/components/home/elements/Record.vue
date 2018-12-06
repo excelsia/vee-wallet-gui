@@ -1,5 +1,6 @@
 <template>
-  <b-container class="record-unit"
+  <b-container v-if="txIcon==='sent'||txIcon==='received'||txIcon==='leased in'||txIcon==='leased out'||txIcon==='leased out canceled'||txIcon==='leased in canceled'"
+               class="record-unit"
                fluid>
     <b-row align-v="center">
       <b-col class="record-icon"
@@ -43,16 +44,15 @@
                  cols="auto"></b-col>
           <b-col class="detail-4">{{ txHourStr }}:{{ txMinuteStr }}, {{ txMonthStr }}  {{ txDayStr }}</b-col>
         </b-row>
-      </b-col>
-      <b-col class="record-detail"
-             v-if="transType==='lease'"
-             cols="auto">
+      </b-col> <b-col class="record-detail"
+                      v-if="transType==='lease'"
+                      cols="auto">
         <b-row>
           <b-col class="title">{{ txTitle }}</b-col>
         </b-row>
         <b-row>
           <b-col class="detail-1"
-                 cols="auto">{{ (txIcon === 'leased out' || txIcon === 'leased out canceled') ? 'To' : 'From' }}:</b-col>
+                 cols="auto">{{ (txIcon === 'sent' || txIcon === 'leased out' || txIcon === 'leased out canceled') ? 'To' : 'From' }}:</b-col>
           <b-col class="detail-2">{{ txAddressShow }}</b-col>
           <b-col class="detail-3"
                  cols="auto"></b-col>
@@ -64,7 +64,157 @@
              cols="auto">
         <div>
           <span v-if="txIcon === 'sent' || txIcon === 'received'">{{ txIcon === 'sent' ? '-' : '+' }}</span>
-          <span>{{ txAmount }} VEE</span>
+          <span> {{ formatter(txAmount) }} VEE</span>
+        </div>
+      </b-col>
+      <b-col class="record-action"
+             cols="auto">
+        <b-dropdown no-caret
+                    class="more-btn"
+                    variant="link"
+                    right>
+          <template slot="button-content">
+            <div
+              @mouseover="hoverIco"
+              @mouseout="unhoverIco">
+              <img
+                v-if="hovered"
+                src="../../../assets/imgs/icons/wallet/ic_more_hover.svg">
+              <img
+                v-if="!hovered"
+                src="../../../assets/imgs/icons/wallet/ic_more.svg">
+            </div>
+          </template>
+          <b-dropdown-item @click="showModal">TX info</b-dropdown-item>
+          <b-dropdown-item v-if="transType === 'lease' && txIcon==='leased out' && !isCanceled"
+                           @click="cancelLeasing">Cancel Leasing</b-dropdown-item>
+          <b-dropdown-item @click="copyTxId">Copy TX ID</b-dropdown-item>
+        </b-dropdown>
+      </b-col>
+    </b-row>
+    <textarea class="copy-txid"
+              v-model="txId"
+              ref="tId"
+              readonly></textarea>
+    <TxInfoModal :modal-id="txRecord.id"
+                 :tx-icon="txIcon"
+                 :tx-type="txType"
+                 :tx-address="txAddress"
+                 :tx-time="txRecord.timestamp"
+                 :tx-fee="txFee"
+                 :tx-amount="txAmount"
+                 :tx-block="txBlock"
+                 :tx-attachment="txAttachment"
+                 :trans-type="transType"
+                 :v-if="transType==='payment'"></TxInfoModal>
+    <TxInfoModal :modal-id="txRecord.id"
+                 :tx-fee="txFee"
+                 :tx-time="cancelTime"
+                 :tx-icon="'leased out canceled'"
+                 :trans-type="'cancelLease'"
+                 v-if="transType==='lease'"
+                 :tx-amount="txAmount"
+                 :tx-address="txAddress"></TxInfoModal>
+    <CancelLease :modal-id="txRecord.id"
+                 :wallet-type="walletType"
+                 :address="txAddress"
+                 :amount="txAmount"
+                 :fee="txFee"
+                 :cold-pub-key="coldPubKey"
+                 :tx-timestamp="txRecord.timestamp"
+                 :address-index="addressIndex"
+                 @show-details="showDetails"
+                 v-if="transType==='lease'">
+    </CancelLease>
+  </b-container>
+  <b-container v-else
+               class="record-unit"
+               fluid>
+    <b-row v-if="txIcon==='self'"
+           align-v="center">
+      <b-col class="record-icon"
+             cols="auto">
+        <img v-if="txIcon==='self'"
+             src="../../../assets/imgs/icons/wallet/ic_sent.svg"
+             width="32px">
+      </b-col>
+      <b-col class="record-detail"
+             v-if="transType==='payment'"
+             cols="auto">
+        <b-row>
+          <b-col class="title">Sent</b-col>
+        </b-row>
+        <b-row>
+          <b-col class="detail-1"
+                 cols="auto"> To:</b-col>
+          <b-col class="detail-2">{{ txAddressShow }}</b-col>
+          <b-col class="detail-3"
+                 cols="auto"></b-col>
+          <b-col class="detail-4">{{ txHourStr }}:{{ txMinuteStr }}, {{ txMonthStr }}  {{ txDayStr }}</b-col>
+        </b-row>
+      </b-col>
+      <b-col class="record-blank"></b-col>
+      <b-col class="amount-sent"
+             cols="auto">
+        <div>
+          <span >-</span>
+          <span>{{ formatter(txAmountofsent) }} VEE</span>
+        </div>
+      </b-col>
+      <b-col class="record-action"
+             cols="auto">
+        <b-dropdown no-caret
+                    class="more-btn"
+                    variant="link"
+                    right>
+          <template slot="button-content">
+            <div
+              @mouseover="hoverIco"
+              @mouseout="unhoverIco">
+              <img
+                v-if="hovered"
+                src="../../../assets/imgs/icons/wallet/ic_more_hover.svg">
+              <img
+                v-if="!hovered"
+                src="../../../assets/imgs/icons/wallet/ic_more.svg">
+            </div>
+          </template>
+          <b-dropdown-item @click="showModal">TX info</b-dropdown-item>
+          <b-dropdown-item v-if="transType === 'lease' && txIcon==='leased out' && !isCanceled"
+                           @click="cancelLeasing">Cancel Leasing</b-dropdown-item>
+          <b-dropdown-item @click="copyTxId">Copy TX ID</b-dropdown-item>
+        </b-dropdown>
+      </b-col>
+    </b-row>
+    <b-row v-if="txIcon==='self'"
+           align-v="center">
+      <b-col class="record-icon"
+             cols="auto">
+        <img v-if="txIcon==='self'"
+             src="../../../assets/imgs/icons/wallet/ic_received.svg"
+             width="32px">
+      </b-col>
+      <b-col class="record-detail"
+             v-if="transType==='payment'"
+             cols="auto">
+        <b-row>
+          <b-col class="title">Received</b-col>
+        </b-row>
+        <b-row>
+          <b-col class="detail-1"
+                 cols="auto">From:</b-col>
+          <b-col class="detail-2">{{ txAddressShow }}</b-col>
+          <b-col class="detail-3"
+                 cols="auto"></b-col>
+          <b-col class="detail-4">{{ txHourStr }}:{{ txMinuteStr }}, {{ txMonthStr }}  {{ txDayStr }}</b-col>
+        </b-row>
+      </b-col>
+      <b-col class="record-blank"></b-col>
+      <b-col class="amount-received"
+             cols="auto">
+        <div>
+          <span >+</span>
+          <span>{{ formatter(txAmount) }} VEE</span>
         </div>
       </b-col>
       <b-col class="record-action"
@@ -137,6 +287,7 @@ import { VEE_PRECISION } from '@/constants'
 import crypto from '@/utils/crypto'
 import CancelLease from '../modals/CancelLease'
 import { PAYMENT_TX, LEASE_TX, CANCEL_LEASE_TX } from '../../../constants'
+import browser from '../../../utils/browser'
 
 export default {
     name: 'Record',
@@ -157,7 +308,8 @@ export default {
                     txAddress: '',
                     txTime: '',
                     txAmount: 0,
-                    txAttachment: ''
+                    txAttachment: '',
+                    txBlock: 0
                 }
             }
         },
@@ -189,9 +341,28 @@ export default {
         }
     },
     computed: {
+        txIcon() {
+            return this.txType.toString().toLowerCase()
+        },
+        txClass() {
+            return this.txIcon.replace(/\s+/g, '')
+        },
+        txAddress() {
+            var sender = this.txRecord.proofs === undefined ? this.address : crypto.buildRawAddress(base58.decode(this.txRecord.proofs[0].publicKey))
+            if (this.txType === 'Sent' || this.txType === 'Leased Out' || this.txType === 'Leased Out Canceled') {
+                if (this.txType === 'Leased Out Canceled') {
+                    return this.txRecord.lease.recipient
+                }
+                return this.txRecord.recipient
+            } else {
+                return sender
+            }
+        },
         txType() {
             if (this.txRecord['type'] === PAYMENT_TX) {
-                if (this.txRecord.recipient === this.address) {
+                if ((this.txRecord.recipient === this.address) && (this.address === crypto.buildRawAddress(base58.decode(this.txRecord.proofs[0].publicKey)))) {
+                    return 'Self'
+                } else if (this.txRecord.recipient === this.address) {
                     return 'Received'
                 } else {
                     return 'Sent'
@@ -210,23 +381,6 @@ export default {
                 }
             } else {
                 return 'Received'
-            }
-        },
-        txIcon() {
-            return this.txType.toString().toLowerCase()
-        },
-        txClass() {
-            return this.txIcon.replace(/\s+/g, '')
-        },
-        txAddress() {
-            var sender = this.txRecord.proofs === undefined ? this.address : crypto.buildRawAddress(base58.decode(this.txRecord.proofs[0].publicKey))
-            if (this.txType === 'Sent' || this.txType === 'Leased Out' || this.txType === 'Leased Out Canceled') {
-                if (this.txType === 'Leased Out Canceled') {
-                    return this.txRecord.lease.recipient
-                }
-                return this.txRecord.recipient
-            } else {
-                return sender
             }
         },
         txAddressShow() {
@@ -256,6 +410,8 @@ export default {
                 return 'Sent'
             } else if (this.txType === 'Received') {
                 return 'Received'
+            } else if (this.txType === 'Self') {
+                return 'Self'
             }
         },
         txTime() {
@@ -289,9 +445,27 @@ export default {
         },
         txAmount() {
             if (this.txRecord.lease) {
-                return this.txRecord.lease.amount / VEE_PRECISION
+                if (this.txType === 'Leased Out Canceled') {
+                    return (this.txRecord.lease.amount - 10000000) / VEE_PRECISION
+                } else {
+                    return this.txRecord.lease.amount / VEE_PRECISION
+                }
+            } else if (this.txRecord['type'] === LEASE_TX) {
+                if (this.txType === 'Leased Out') {
+                    return (this.txRecord.amount + 10000000) / VEE_PRECISION
+                } else {
+                    return this.txRecord.amount / VEE_PRECISION
+                }
+            } else {
+                if (this.txIcon === 'sent') {
+                    return (this.txRecord.amount + 10000000) / VEE_PRECISION
+                } else {
+                    return this.txRecord.amount / VEE_PRECISION
+                }
             }
-            return this.txRecord.amount / VEE_PRECISION
+        },
+        txAmountofsent() {
+            return (this.txRecord.amount + 10000000) / VEE_PRECISION
         },
         txFee() {
             return this.txRecord.fee / VEE_PRECISION
@@ -333,6 +507,9 @@ export default {
             this.cancelTime = cancelTime
             this.showCancelDetails = true
             this.$root.$emit('bv::show::modal', 'txInfoModal_cancelLease' + this.txId)
+        },
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

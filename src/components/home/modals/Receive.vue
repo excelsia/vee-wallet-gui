@@ -52,8 +52,14 @@
                       class="input-t"
                       type="number"
                       v-model="amount"
+                      aria-describedby="inputLiveFeedback"
+                      :state="isAmountValid()"
                       min="0">
         </b-form-input>
+        <b-form-invalid-feedback id="inputLiveFeedback"
+                                 v-if="isWrongFormat(amount)">
+          The number in this field is invalid. It can include a maximum of 8 digits after the decimal point.
+        </b-form-invalid-feedback>
         <div id="address-qrcode">
           <img :src="getQrCodeImg">
         </div>
@@ -112,6 +118,16 @@ export default {
                 this.$root.$emit('bv::hide::popover', 'btn-cpy')
                 this.isCpyDisable = false
             }, 400)
+        },
+        isAmountValid() {
+            var amount = this.amount
+            if (Number(amount) === 0) {
+                return void 0
+            }
+            return !isNaN(Number(amount)) && !this.isWrongFormat(amount)
+        },
+        isWrongFormat(amount) {
+            return (amount.toString().split('.')[1] && amount.toString().split('.')[1].length > 8) || /[eE]/.test(amount.toString())
         }
     }
 }

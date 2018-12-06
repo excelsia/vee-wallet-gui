@@ -9,7 +9,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-
+export const WALLET_VERSION = '0.1.0'
 export const INITIAL_SESSION_TIMEOUT = 5
 export const NETWORK_BYTE = 'T'.charCodeAt(0);
 export const INITIAL_NONCE = 0;
@@ -38,8 +38,8 @@ export const DEFAULT_BASIC_CONFIG = {
     logLevel: 'warning',
     timeDiff: 0
 };
-
-export const TESTNET_NODE = '/api'
+//http://localhost:19922/
+export const TESTNET_NODE = 'http://wallettestnet.vee.tech:9922'
 
 export const ADDRESS_LENGTH = 35;
 

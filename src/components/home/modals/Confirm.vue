@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="outside">
     <img v-if="txType==='transfer'"
          src="../../../assets/imgs/icons/operate/ic_sent_big.svg">
     <img v-else-if="txType==='lease'"
@@ -10,7 +10,7 @@
                     label="Amount"
                     label-for="amount_confirm">
         <b-form-input id="amount_confirm"
-                      :value="amount + ' VEE'"
+                      :value="formatter(amount) + ' VEE'"
                       class="amount"
                       readonly
                       :plaintext="true">
@@ -66,7 +66,7 @@
                     label="Fee"
                     label-for="fee_confirm">
         <b-form-input id="fee_confirm"
-                      :value="fee + 'vee'"
+                      :value="formatter(fee) + 'VEE'"
                       class="fee"
                       readonly
                       :plaintext="true">
@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import browser from '../../../utils/browser'
 export default {
     name: 'Confirm',
     props: {
@@ -109,19 +110,28 @@ export default {
             require: true,
             default: ''
         }
+    },
+    methods: {
+        formatter(num) {
+            return browser.numberFormatter(num)
+        }
     }
 }
 </script>
 
 <style scoped>
+.outside{
+    padding-right: 0px;
+}
 .form-line {
     margin-bottom: 0px;
     border-top: 1px solid #E8E9ED;
     height: 48px;
-    text-align: right;
+    text-align: center;
     padding-top: 5px;
 }
 .infos {
+    width: 439px;
     margin-top: 30px;
     border-bottom: 1px solid #E8E9ED;
     margin-bottom: 40px;

@@ -39,30 +39,41 @@
                width="60px"
                height="60px">
         </div>
-        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ txAmount }} vee</div>
+        <div :class="txClass + '-amount'">{{ txIcon === 'sent' ? '-' : txIcon === 'received' ? '+' : '' }}{{ formatter(txAmount) }} VEE</div>
       </div>
-      <div class="tx-address">
+      <div class="tx-address"
+           v-if="!txIcon==='self'">
         <label>{{ (txIcon === 'received' || txIcon === 'leased in' || txIcon === 'leased in canceled') ? 'From' : 'To' }}</label>
         <span>{{ txAddress }}</span>
       </div>
       <div class="tx-block">
         <label>Timestamp</label>
-        <span>{{ new Date(txTime / 1000000).toGMTString() }}</span>
+        <span>{{ new Date(txTime / 1000000).toLocaleString() }}</span>
       </div>
       <div class="tx-fee">
         <label>Fee</label>
-        <span>{{ txFee || 0 }} vee</span>
+        <span>{{ formatter(txFee || 0) }} VEE</span>
       </div>
       <div class="tx-attachment"
            v-if="txIcon === 'sent' || txIcon === 'received'">
         <label>Attachment</label>
         <span>{{ txAttachment }}</span>
       </div>
+      <div class="tx-attachment">
+        <label>ID</label>
+        <span>{{ modalId }}</span>
+      </div>
+      <div class="tx-attachment">
+        <label>Block Height</label>
+        <span>{{ txBlock }}</span>
+      </div>
     </div>
   </b-modal>
 </template>
 
 <script>
+import browser from '../../../utils/browser'
+
 export default {
     name: 'TxInfoModal',
     props: {
@@ -97,6 +108,10 @@ export default {
         transType: {
             type: String,
             default: 'payment'
+        },
+        txBlock: {
+            type: Number,
+            default: 0
         }
     },
     computed: {
@@ -107,6 +122,9 @@ export default {
     methods: {
         closeModal() {
             this.$refs.infoModal.hide()
+        },
+        formatter(num) {
+            return browser.numberFormatter(num)
         }
     }
 }

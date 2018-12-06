@@ -169,6 +169,7 @@ export default {
             for (const addr in this.coldAddresses) {
                 this.getBalance(addr)
             }
+            this.getBalance(this.selectedAddress)
         }
     },
 
@@ -253,7 +254,7 @@ export default {
                 this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
                 this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
             }, response => {
-                Vue.set(this.balance, address, 0)
+                this.$router.push('/warning')
             })
         },
         importCold(coldAddress, pubKey) {
