@@ -193,12 +193,6 @@ export default {
                 document.getElementById('img_read').src = imgread2
                 this.read_agree = false
             }
-            // if (document.getElementById('img_read').src.match('solid')) {
-            // document.getElementById('img_read').src = imgread2
-            // this.read_agree = false
-            // }
-            // document.getElementById('img_agree').src = this.img_url
-            // element.src = '../../../assets/imgs/icons/signup/ic_select_solid.svg'
         },
         changeAvatar() {
             this.seed = seedLib.create()
