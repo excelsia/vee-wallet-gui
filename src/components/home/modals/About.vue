@@ -37,20 +37,6 @@ export default {
     name: 'About',
     created() {
     },
-    props: {
-        setUsrLocalStorage: {
-            type: Function,
-            require: true,
-            default: function() {
-                return ''
-            }
-        },
-        address: {
-            type: String,
-            require: true,
-            default: ''
-        }
-    },
     data: function() {
         return initData
     },
