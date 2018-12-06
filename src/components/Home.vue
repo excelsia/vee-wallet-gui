@@ -28,12 +28,31 @@
                  class="pointer unselectable"
                  @click.native="selectWallet(address, 'hotWallet')">
           </Asset>
-          <div class="asset-title">
-            <img
-              src="../assets/imgs/icons/wallet/ic_wallet_line.svg"><b class="title-assets">Cold Wallet</b>
+          <div>
+            <span class="asset-title2">
+              <img
+                src="../assets/imgs/icons/wallet/ic_wallet_line.svg"><b class="title-assets">Cold Wallet</b>
+              <b-btn @click="changeflag"
+                     size="sm"
+                     align="left"
+                     variant="link"
+                     class="sort">
+                <img class="sort-image"
+                     src="../assets/imgs/icons/wallet/ic_sort_down.svg">
+              </b-btn>
+            </span>
           </div>
-          <Asset v-if="coldAddresses"
+          <Asset v-if="coldAddresses&&sortflag===0"
                  v-for="(coldPubkey, coldAddress) in coldAddresses"
+                 :address="coldAddress"
+                 :key="coldAddress"
+                 :balance="balance[coldAddress]"
+                 :selected="coldAddress === selectedAddress"
+                 class="pointer unselectable"
+                 @click.native="selectWallet(coldAddress, 'coldWallet')">
+          </Asset>
+          <Asset v-if="coldAddresses&&sortflag===1"
+                 v-for="(coldPubkey, coldAddress) in sortedaddr"
                  :address="coldAddress"
                  :key="coldAddress"
                  :balance="balance[coldAddress]"
@@ -143,7 +162,9 @@ export default {
             sessionClearTimeout: void 0,
             addresses: {},
             coldAddresses: {},
+            sortedaddr: {},
             walletType: '',
+            sortflag: 0,
             transActive: 'trans',
             available: 0,
             leasedIn: 0,
@@ -151,17 +172,28 @@ export default {
             total: 0
         }
     },
-
     created() {
+        Vue.ls.set('updateStatus', 0)
+        console.log('creation stage' + this.address)
         if (!this.address || !Vue.ls.get('pwd')) {
             this.$router.push('/login')
         } else {
             this.getBalance(this.address)
             this.setUsrLocalStorage('lastLogin', new Date().getTime())
             this.selectedAddress = this.address
+            var unsortedColdAddresses = {}
+            var sortedColdAddresses = {}
             if (this.userInfo && this.userInfo.coldAddresses) {
-                this.coldAddresses = JSON.parse(this.userInfo.coldAddresses)
+                unsortedColdAddresses = JSON.parse(this.userInfo.coldAddresses)
             }
+            console.log('unsorted ' + JSON.stringify(unsortedColdAddresses))
+            Object.keys(unsortedColdAddresses).sort().forEach(function(key) {
+                console.log('keys : ' + key)
+                sortedColdAddresses[key] = unsortedColdAddresses[key]
+            })
+            this.coldAddresses = unsortedColdAddresses
+            this.sortedaddr = sortedColdAddresses
+            console.log('sorted ' + JSON.stringify(this.sortedaddr))
             this.getAddresses()
             for (const addr in this.addresses) {
                 this.getBalance(addr)
@@ -169,10 +201,10 @@ export default {
             for (const addr in this.coldAddresses) {
                 this.getBalance(addr)
             }
-            this.getBalance(this.selectedAddress)
+            window.localStorage.setItem('keepLogin_addr', this.address)
+            window.localStorage.setItem('keepLogin_pwd', Vue.ls.get('pwd'))
         }
     },
-
     mounted() {
         this.setSessionClearTimeout()
     },
@@ -305,6 +337,10 @@ export default {
                 Vue.set(this.addresses, seed.address, index)
             }
             return addresses
+        },
+        changeflag() {
+            if (this.sortflag === 0) this.sortflag = 1
+            else if (this.sortflag === 1) this.sortflag = 0
         }
     },
 
@@ -404,5 +440,18 @@ export default {
 }
 .tab-pane {
     padding: 0 !important;
+}
+.sort {
+    left: 0px;
+    margin-left: 55px;
+}
+.sort-image {
+     left: 0px;
+     margin-left: 15px;
+}
+.asset-title2 {
+    padding: 10px;
+    margin-top: 10px;
+    width:350px;
 }
 </style>
