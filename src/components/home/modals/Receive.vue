@@ -127,11 +127,7 @@ export default {
             return !isNaN(Number(amount)) && !this.isWrongFormat(amount)
         },
         isWrongFormat(amount) {
-            if ((amount.toString().split('.')[1] && amount.toString().split('.')[1].length > 8) || /[eE]/.test(amount.toString())) {
-                return true
-            } else {
-                return false
-            }
+            return (amount.toString().split('.')[1] && amount.toString().split('.')[1].length > 8) || /[eE]/.test(amount.toString())
         }
     }
 }
