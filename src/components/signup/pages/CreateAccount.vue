@@ -336,10 +336,10 @@ export default {
             return converters.stringToHexString(this.seed.address).split('').reverse().slice(1, 21).join('')
         },
         isSubmitDisabled() {
-            return this.isFirstRun === true || this.validator.errors.length > 0 || this.read_agree === false
+            return this.isFirstRun || this.validator.errors.length > 0 || !this.read_agree
         },
         isEnabled() {
-            return this.isFirstRun === false && this.validator.errors.length === 0
+            return !this.isFirstRun && this.validator.errors.length === 0
         },
         isPassErrors() {
             let errors = this.validator.getErrors('pass')
