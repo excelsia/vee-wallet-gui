@@ -320,6 +320,7 @@ export default {
             }, response => {
                 this.sendError = true
             })
+            this.$emit('endLeaseSignal')
         },
         getSignature(signature, timestamp) {
             this.coldSignature = signature

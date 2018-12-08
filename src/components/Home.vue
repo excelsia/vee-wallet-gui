@@ -96,7 +96,8 @@
                               :balances="balance"
                               :cold-addresses="coldAddresses"
                               :total="total"
-                              :addresses="addresses"></trans-pane>
+                              :addresses="addresses"
+                              @updateInfo="updateInfo"></trans-pane>
                 </div>
                 <div class="f-records">
                   <Records :address="selectedAddress"></Records>
@@ -123,7 +124,8 @@
                              :leased-out="leasedOut"
                              :total="total"
                              :address="selectedAddress"
-                             :wallet-type="walletType">
+                             :wallet-type="walletType"
+                             @updateInfo="updateInfo">
                   </LeasePane>
                 </div>
                 <div class="f-records">
@@ -173,8 +175,6 @@ export default {
         }
     },
     created() {
-        Vue.ls.set('updateStatus', 0)
-        console.log('creation stage' + this.address)
         if (!this.address || !Vue.ls.get('pwd')) {
             this.$router.push('/login')
         } else {
@@ -186,14 +186,11 @@ export default {
             if (this.userInfo && this.userInfo.coldAddresses) {
                 unsortedColdAddresses = JSON.parse(this.userInfo.coldAddresses)
             }
-            console.log('unsorted ' + JSON.stringify(unsortedColdAddresses))
             Object.keys(unsortedColdAddresses).sort().forEach(function(key) {
-                console.log('keys : ' + key)
                 sortedColdAddresses[key] = unsortedColdAddresses[key]
             })
             this.coldAddresses = unsortedColdAddresses
             this.sortedaddr = sortedColdAddresses
-            console.log('sorted ' + JSON.stringify(this.sortedaddr))
             this.getAddresses()
             for (const addr in this.addresses) {
                 this.getBalance(addr)
@@ -281,10 +278,12 @@ export default {
             const url = TESTNET_NODE + '/addresses/balance/details/' + address
             this.$http.get(url).then(response => {
                 Vue.set(this.balance, address, response.body['available'] / VEE_PRECISION)
-                this.total = response.body.regular / VEE_PRECISION
-                this.available = response.body.available / VEE_PRECISION
-                this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
-                this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
+                if (address === this.selectedAddress) {
+                    this.total = response.body.regular / VEE_PRECISION
+                    this.available = response.body.available / VEE_PRECISION
+                    this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
+                    this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
+                }
             }, response => {
                 this.$router.push('/warning')
             })
@@ -341,6 +340,23 @@ export default {
         changeflag() {
             if (this.sortflag === 0) this.sortflag = 1
             else if (this.sortflag === 1) this.sortflag = 0
+        },
+        updateInfo() {
+            for (let delayTime = 3000; delayTime < 301000; delayTime *= 10) {
+                setTimeout(() => {
+                    let addrtmp = this.selectedAddress
+                    this.selectedAddress = ''
+                    setTimeout(() => {
+                        this.selectedAddress = addrtmp
+                    }, 0)
+                    for (const addr in this.addresses) {
+                        this.getBalance(addr)
+                    }
+                    for (const addr in this.coldAddresses) {
+                        this.getBalance(addr)
+                    }
+                }, delayTime)
+            }
         }
     },
 

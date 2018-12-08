@@ -182,7 +182,7 @@
                      width="20"
                      height="20">
               </span>
-              <span class="balance">{{ balances[coldAddress] }} VEE</span>
+              <span class="balance">{{ formatter(balances[coldAddress]) }} VEE</span>
             </b-btn>
           </b-form-group>
           <b-form-group label="Recipient"
@@ -538,6 +538,7 @@ export default {
             this.coldAddress = this.walletType === 'coldWallet' ? this.selectedAddress : this.defaultColdAddress
         },
         endSend: function() {
+            this.$emit('endSendSignal')
             this.$refs.sendModal.hide()
         },
         scanChange: function(evt) {
