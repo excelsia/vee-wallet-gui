@@ -277,12 +277,21 @@ export default {
         getBalance: function(address) {
             const url = TESTNET_NODE + '/addresses/balance/details/' + address
             this.$http.get(url).then(response => {
-                Vue.set(this.balance, address, response.body['available'] / VEE_PRECISION)
+                let value = response.body['available'] / VEE_PRECISION
+                let changestatus = value === this.balance[address]
+                Vue.set(this.balance, address, value)
                 if (address === this.selectedAddress) {
                     this.total = response.body.regular / VEE_PRECISION
                     this.available = response.body.available / VEE_PRECISION
                     this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
                     this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
+                    if (!changestatus) {
+                        let addrtmp = this.selectedAddress
+                        this.selectedAddress = ''
+                        setTimeout(() => {
+                            this.selectedAddress = addrtmp
+                        }, 0)
+                    }
                 }
             }, response => {
                 this.$router.push('/warning')
@@ -342,13 +351,8 @@ export default {
             else if (this.sortflag === 1) this.sortflag = 0
         },
         updateInfo() {
-            for (let delayTime = 3000; delayTime < 301000; delayTime *= 10) {
+            for (let delayTime = 6000; delayTime < 301000; delayTime *= 7) {
                 setTimeout(() => {
-                    let addrtmp = this.selectedAddress
-                    this.selectedAddress = ''
-                    setTimeout(() => {
-                        this.selectedAddress = addrtmp
-                    }, 0)
                     for (const addr in this.addresses) {
                         this.getBalance(addr)
                     }
