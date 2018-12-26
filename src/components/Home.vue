@@ -35,8 +35,7 @@
               <b-btn @click="changeflag"
                      size="sm"
                      align="left"
-                     variant="link"
-                     class="sort">
+                     variant="link">
                 <img class="sort-image"
                      src="../assets/imgs/icons/wallet/ic_sort_down.svg">
               </b-btn>
@@ -298,7 +297,8 @@ export default {
             })
         },
         importCold(coldAddress, pubKey) {
-            Vue.set(this.coldAddresses, coldAddress, !pubKey ? '' : pubKey)
+            Vue.set(this.coldAddresses, coldAddress, !pubKey ? coldAddress : pubKey)
+            Vue.set(this.sortedaddr, coldAddress, !pubKey ? coldAddress : pubKey)
             this.getBalance(coldAddress)
             this.setUsrLocalStorage('coldAddresses', JSON.stringify(this.coldAddresses))
         },
@@ -335,6 +335,7 @@ export default {
         },
         deleteCold(addr) {
             Vue.delete(this.coldAddresses, addr)
+            Vue.delete(this.sortedaddr, addr)
             this.setUsrLocalStorage('coldAddresses', JSON.stringify(this.coldAddresses))
         },
         getAddresses() {
@@ -461,13 +462,8 @@ export default {
 .tab-pane {
     padding: 0 !important;
 }
-.sort {
-    left: 0px;
-    margin-left: 55px;
-}
 .sort-image {
-     left: 0px;
-     margin-left: 15px;
+     margin-left: 45px;
 }
 .asset-title2 {
     padding: 10px;
