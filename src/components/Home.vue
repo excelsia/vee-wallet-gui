@@ -298,7 +298,12 @@ export default {
         },
         importCold(coldAddress, pubKey) {
             Vue.set(this.coldAddresses, coldAddress, !pubKey ? coldAddress : pubKey)
-            Vue.set(this.sortedaddr, coldAddress, !pubKey ? coldAddress : pubKey)
+            let tempAddr = {}
+            let tempAddr2 = this.coldAddresses
+            Object.keys(tempAddr2).sort().forEach(function(key) {
+                tempAddr[key] = tempAddr2[key]
+            })
+            this.sortedaddr = tempAddr
             this.getBalance(coldAddress)
             this.setUsrLocalStorage('coldAddresses', JSON.stringify(this.coldAddresses))
         },

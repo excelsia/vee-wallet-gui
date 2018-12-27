@@ -86,11 +86,12 @@
       </b-col>
       <b-col class="col-rit">
         <b-button
-          block
           class="btn-confirm"
           :style="{background:(isValidAddress ? '' : '#FFBE96')}"
           variant="warning"
           size="lg"
+          block
+          :disabled="isConfirm"
           @click="importOk">Confirm
         </b-button>
       </b-col>
@@ -147,6 +148,9 @@ export default {
             }
             return this.version === '0.3.0'
         },
+        isConfirm() {
+            return !((this.coldAddress && this.isValidAddress && this.version === '0.3.0') || (this.coldAddress && this.isValidPubKey && this.isValidAddress && this.version === '0.2.0'))
+        },
         addressExisted: function() {
             return this.coldAddress === this.address
         }
@@ -166,7 +170,7 @@ export default {
             return ['0.3.0', '0.2.0']
         },
         importOk: function(evt) {
-            if (this.qrInit || !this.coldAddress) {
+            if (this.qrInit || !this.coldAddress || !this.isValidAddress) {
                 evt.preventDefault()
             } else {
                 this.$emit('import-cold', this.coldAddress, this.coldPubKey)
