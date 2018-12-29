@@ -502,6 +502,7 @@ export default {
         },
         cancelLeasing() {
             this.$root.$emit('bv::show::modal', 'cancelLeaseModal_' + this.txRecord.id)
+            this.$emit('endCancelSignal')
         },
         showDetails(cancelTime) {
             this.cancelTime = cancelTime

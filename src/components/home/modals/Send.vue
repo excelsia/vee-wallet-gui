@@ -517,6 +517,7 @@ export default {
             }, response => {
                 this.sendError = true
             })
+            this.$emit('endSendSignal')
         },
         nextPage: function() {
             this.sendError = false
@@ -571,7 +572,6 @@ export default {
             this.coldAddress = this.walletType === 'coldWallet' ? this.selectedAddress : this.defaultColdAddress
         },
         endSend: function() {
-            this.$emit('endSendSignal')
             this.$refs.sendModal.hide()
         },
         scanChange: function(evt) {
