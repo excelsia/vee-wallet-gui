@@ -346,13 +346,14 @@
 import transaction from '@/utils/transaction'
 import Vue from 'vue'
 import seedLib from '@/libs/seed.js'
-import { TESTNET_NODE, TRANSFER_ATTACHMENT_BYTE_LIMIT, VEE_PRECISION, TX_FEE, PAYMENT_TX, FEE_SCALE, API_VERSION } from '@/constants.js'
+import { TESTNET_NODE, TRANSFER_ATTACHMENT_BYTE_LIMIT, VEE_PRECISION, TX_FEE, PAYMENT_TX, FEE_SCALE, API_VERSION, PROTOCOL, TRANSACTION } from '@/constants.js'
 import Confirm from './Confirm'
 import Success from './Success'
 import crypto from '@/utils/crypto'
 import ColdSignature from './ColdSignature'
 import browser from '../../../utils/browser'
 var initData = {
+    opc: '',
     recipient: '',
     amount: 0,
     attachment: '',
@@ -438,6 +439,9 @@ export default {
         },
         dataObject() {
             return {
+                protocol: PROTOCOL,
+                api: API_VERSION,
+                opc: TRANSACTION,
                 transactionType: PAYMENT_TX,
                 senderPublicKey: this.coldAddresses[this.coldAddress],
                 amount: Number((this.coldAmount * VEE_PRECISION).toFixed(0)),
@@ -445,8 +449,7 @@ export default {
                 feeScale: FEE_SCALE,
                 recipient: this.coldRecipient,
                 timestamp: Date.now(),
-                attachment: this.coldAttachment,
-                api: API_VERSION
+                attachment: this.coldAttachment
             }
         },
         isValidAttachment() {
