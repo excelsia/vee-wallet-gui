@@ -178,7 +178,7 @@ export default {
                 this.qrInit = false
             }
         },
-        onDecode: function(decodeString) {
+        /* onDecode: function(decodeString) {
             this.paused = true
             let start = decodeString.indexOf('address')
             let end = decodeString.indexOf('&')
@@ -187,6 +187,19 @@ export default {
             start = decodeString.indexOf('publicKey')
             end = decodeString.length
             this.coldPubKey = decodeString.substring(start + 10, end)
+        }, */
+        onDecode: function(decodeString) {
+            this.paused = true
+            var coldaddr = JSON.parse(decodeString).address
+            var coldpuk = JSON.parse(decodeString).publicKey
+            var xxx = JSON.parse(decodeString).opc
+
+            this.coldAddress = coldaddr
+            this.coldPubKey = coldpuk
+            this.opc = xxx
+            console.log('opc' + this.opc)
+            console.log('address' + this.coldAddress)
+            console.log('publickey' + this.coldPubKey)
         },
         scanAgain: function() {
             this.paused = false

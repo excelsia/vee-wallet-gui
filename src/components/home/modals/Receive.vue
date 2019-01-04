@@ -76,6 +76,7 @@
 
 <script>
 import jrQrcode from 'jr-qrcode'
+import { API_VERSION, PROTOCOL, OPC_ACCOUNT } from '@/constants.js'
 export default {
     name: 'Receive',
     props: {
@@ -91,7 +92,7 @@ export default {
     },
     computed: {
         getQrCodeImg() {
-            const text = window.location.href + '/#send/VEE?recipient=' + this.address + '&amount=' + this.amount
+            // const text = window.location.href + '/#send/VEE?recipient=' + this.address + '&amount=' + this.amount
             const options = {
                 padding: 10,
                 width: 180,
@@ -101,8 +102,18 @@ export default {
                 background: '#ffffff',
                 foreground: '#000000'
             }
+            const text = JSON.stringify(this.receivedObject)
+            console.log('object' + text)
             const imgBase64 = jrQrcode.getQrBase64(text, options)
             return imgBase64
+        },
+        receivedObject() {
+            return {
+                protocol: PROTOCOL,
+                api: API_VERSION,
+                opc: OPC_ACCOUNT,
+                address: this.address
+            }
         }
     },
     methods: {
