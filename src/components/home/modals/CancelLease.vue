@@ -70,7 +70,7 @@
 
 <script>
 import Confirm from './Confirm'
-import { CANCEL_LEASE_TX, VEE_PRECISION, TESTNET_NODE, TX_FEE, FEE_SCALE, API_VERSION } from '../../../constants'
+import { CANCEL_LEASE_TX, VEE_PRECISION, TESTNET_NODE, TX_FEE, FEE_SCALE, API_VERSION, PROTOCOL, OPC_TRANSACTION } from '../../../constants'
 import transaction from '@/utils/transaction'
 import ColdSignature from './ColdSignature'
 import CancelSuccess from './CancelSuccess'
@@ -148,6 +148,8 @@ export default {
         },
         dataObject() {
             return {
+                protocol: PROTOCOL,
+                opc: OPC_TRANSACTION,
                 transactionType: CANCEL_LEASE_TX,
                 senderPublicKey: this.coldPubKey,
                 fee: this.fee * VEE_PRECISION,
