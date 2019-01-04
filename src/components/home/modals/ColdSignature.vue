@@ -41,8 +41,22 @@
         </qrcode-reader>
       </div>
       <p class="flink"
-         v-if="qrError">
-        Invalid signature. Please
+         v-if="sgError">
+        Invalid signature.
+      </p>
+      <p class="flink"
+         v-if="opcError">
+        Wrong QRCode is used. This is not transaction.
+      </p>
+      <p class="flink"
+         v-if="protocolError">
+        Wrong QRCode is used. Invalid protocol.
+      </p>
+      <p class="flink"
+         v-if="apiError">Wrong API version.
+      </p>
+      <p class="flink"
+         v-if="qrError">Please
         <b-button
           class="blink"
           @click="scanAgain"
@@ -64,6 +78,7 @@
 
 <script>
 import jrQrcode from 'jr-qrcode'
+import { API_VERSION, PROTOCOL, OPC_TRANSACTION } from '@/constants.js'
 import transaction from '../../../utils/transaction'
 export default {
     name: 'ColdSignature',
@@ -74,7 +89,11 @@ export default {
             signature: '',
             scanShow: false,
             isScanPage: false,
-            qrError: false
+            qrError: false,
+            sgError: false,
+            apiError: false,
+            protocolError: false,
+            opcError: false
         }
     },
     props: {
@@ -104,6 +123,10 @@ export default {
             try {
                 this.qrInit = true
                 this.qrError = false
+                this.protocolError = false
+                this.apiError = false
+                this.sgError = false
+                this.opcError = false
                 await promise
             } catch (error) {
                 if (error.name === 'NotAllowedError') {
@@ -129,24 +152,32 @@ export default {
         onDecode: function(decodeString) {
             this.paused = true
             this.qrError = false
+            this.protocolError = false
+            this.apiError = false
+            this.sgError = false
+            this.opcError = false
             try {
                 var signature = JSON.parse(decodeString).signature
                 if (!signature) {
                     this.paused = false
                 } else {
                     var data = JSON.parse(JSON.stringify(this.dataObject))
+                    if (data.api !== API_VERSION) this.apiError = true
+                    if (data.protocol !== PROTOCOL) this.protocolError = true
+                    if (data.opc !== OPC_TRANSACTION) this.opcError = true
                     delete data.transactionType
                     delete data.api
                     delete data.opc
                     delete data.protocol
                     data.timestamp *= 1e6
-                    if (transaction.isValidSignature(data, signature, this.dataObject.senderPublicKey, this.dataObject.transactionType)) {
+                    if (this.sgError || this.apiError || this.opcError || this.protocolError) this.qrError = true
+                    if (transaction.isValidSignature(data, signature, this.dataObject.senderPublicKey, this.dataObject.transactionType) && !this.qrError) {
                         var _this = this
                         setTimeout(function() {
                             _this.$emit('get-signature', signature)
                         }, 300)
                     } else {
-                        this.qrError = true
+                        this.sgError = true
                     }
                 }
             } catch (e) {
