@@ -92,7 +92,6 @@ export default {
     },
     computed: {
         getQrCodeImg() {
-            // const text = window.location.href + '/#send/VEE?recipient=' + this.address + '&amount=' + this.amount
             const options = {
                 padding: 10,
                 width: 180,
@@ -103,7 +102,6 @@ export default {
                 foreground: '#000000'
             }
             const text = JSON.stringify(this.receivedObject)
-            console.log('object' + text)
             const imgBase64 = jrQrcode.getQrBase64(text, options)
             return imgBase64
         },
