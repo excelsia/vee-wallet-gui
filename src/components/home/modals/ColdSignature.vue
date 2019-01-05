@@ -41,22 +41,7 @@
         </qrcode-reader>
       </div>
       <p class="flink"
-         v-if="sgError">
-        Invalid signature.
-      </p>
-      <p class="flink"
-         v-if="opcError">
-        Wrong QRCode is used. This is not transaction.
-      </p>
-      <p class="flink"
-         v-if="protocolError">
-        Wrong QRCode is used. Invalid protocol.
-      </p>
-      <p class="flink"
-         v-if="apiError">Wrong API version.
-      </p>
-      <p class="flink"
-         v-if="qrError">Please
+         v-if="qrError">Wrong QRCode. Please
         <b-button
           class="blink"
           @click="scanAgain"
