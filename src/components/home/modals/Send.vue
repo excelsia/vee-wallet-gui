@@ -586,6 +586,10 @@ export default {
         onDecode: function(decodeString) {
             this.paused = true
             this.recipient = JSON.parse(decodeString).address
+            this.amount = JSON.parse(decodeString).amount
+            if (this.amount) {
+                this.amount /= VEE_PRECISION
+            }
             if (!this.isValidRecipient(this.recipient) || this.recipient === '') {
                 this.paused = false
             }
