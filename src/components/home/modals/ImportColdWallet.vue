@@ -33,7 +33,8 @@
           Invalid cold wallet address. <span v-if="addressExisted">The address has existed.</span>
         </b-form-invalid-feedback>
       </b-form-group>
-      <b-form-group label="Cold Wallet Public Key"
+      <b-form-group v-if="version === '0.2.0'"
+                    label="Cold Wallet Public Key"
                     label-for="coldPubKey">
         <b-form-input id="coldPubKey"
                       type="text"
@@ -42,8 +43,18 @@
                       aria-describedby="inputLiveHelp inputLiveFeedback"
                       placeholder="Please input public key of cold wallet.">
         </b-form-input>
-        <b-form-invalid-feedback id="inputLiveFeedback">
-          Invalid cold wallet public key.
+        <b-form-invalid-feedback id="inputLiveFeedback">Invalid cold wallet public key.
+        </b-form-invalid-feedback>
+      </b-form-group>
+      <b-form-group label="Cold Wallet Version"
+                    label-for="version">
+        <b-form-select id=version
+                       v-model="version"
+                       :options="options()"
+                       :state="iscurversion"
+                       aria-describedby="inputLiveHelp inputLiveFeedback"></b-form-select>
+        <b-form-valid-feedback id="inputLiveFeedback">You can find it in Settings -> About Us in your ColdWallet Application</b-form-valid-feedback>
+        <b-form-invalid-feedback id="inputLiveFeedback">Your coldwallet is not the lastest version ,please update it!
         </b-form-invalid-feedback>
       </b-form-group>
       <p class="qrInfo">Tips: Please confirm if your browser's camera is available.</p>
@@ -75,11 +86,12 @@
       </b-col>
       <b-col class="col-rit">
         <b-button
-          block
           class="btn-confirm"
-          :style="{background:(isValidAddress && isValidPubKey ? '' : '#FFBE96')}"
+          :style="{background:(isValidAddress ? '' : '#FFBE96')}"
           variant="warning"
           size="lg"
+          block
+          :disabled="isConfirm"
           @click="importOk">Confirm
         </b-button>
       </b-col>
@@ -104,7 +116,8 @@ export default {
             qrInit: false,
             paused: false,
             coldAddress: '',
-            coldPubKey: ''
+            coldPubKey: '',
+            version: ''
         }
     },
     computed: {
@@ -129,6 +142,15 @@ export default {
             }
             return this.coldPubKey.length <= PUBLIC_KEY_LENGTH
         },
+        iscurversion: function() {
+            if (!this.version) {
+                return void 0
+            }
+            return this.version === '0.3.0'
+        },
+        isConfirm() {
+            return !((this.coldAddress && this.isValidAddress && this.version === '0.3.0') || (this.coldAddress && this.isValidPubKey && this.isValidAddress && this.version === '0.2.0'))
+        },
         addressExisted: function() {
             return this.coldAddress === this.address
         }
@@ -136,6 +158,7 @@ export default {
     methods: {
         showingUp() {
             this.coldAddress = ''
+            this.version = '0.3.0'
             this.coldPubKey = ''
         },
         importClose: function(evt) {
@@ -143,8 +166,11 @@ export default {
                 evt.preventDefault()
             }
         },
+        options() {
+            return ['0.3.0', '0.2.0']
+        },
         importOk: function(evt) {
-            if (this.qrInit || !this.coldAddress || !this.isValidAddress || !this.coldPubKey || !this.isValidPubKey) {
+            if (this.qrInit || !this.coldAddress || !this.isValidAddress) {
                 evt.preventDefault()
             } else {
                 this.$emit('import-cold', this.coldAddress, this.coldPubKey)
@@ -179,18 +205,32 @@ export default {
             }
         },
         onDecode: function(decodeString) {
-            this.paused = true
             let start = decodeString.indexOf('address')
-            let end = decodeString.indexOf('&')
-            this.coldAddress = decodeString.substring(start + 8, end)
-
-            start = decodeString.indexOf('publicKey')
-            end = decodeString.length
-            this.coldPubKey = decodeString.substring(start + 10, end)
+            if (start === -1) {
+                this.scanAgain()
+            }
+            this.paused = true
+            let isNewVersion = decodeString.indexOf('version')
+            if (isNewVersion !== -1) {
+                let end = decodeString.indexOf('$')
+                this.coldAddress = decodeString.substring(start + 8, end)
+                start = decodeString.indexOf('version')
+                end = decodeString.length
+                this.version = decodeString.substring(start + 8, end)
+            } else {
+                let end = decodeString.indexOf('&')
+                this.coldAddress = decodeString.substring(start + 8, end)
+                start = decodeString.indexOf('publicKey')
+                end = decodeString.length
+                this.coldPubKey = decodeString.substring(start + 10, end)
+                this.version = '0.2.0'
+            }
         },
         scanAgain: function() {
             this.paused = false
             this.coldAddress = ''
+            this.coldPubKey = ''
+            this.version = '0.3.0'
         },
         closeModal: function() {
             this.$refs.importModal.hide()

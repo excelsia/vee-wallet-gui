@@ -194,16 +194,6 @@
                        v-if="coldWalletNum > 0"
                        v-for="(pubkey, addr) in coldAddresses"
                        :key="addr">
-          <b-dropdown :text="tagOfColdWallet[addr] ? 'public key' : 'address'"
-                      class="pd-select2 input-t"
-                      variant="light"
-                      size="sm"
-                      slot="prepend">
-            <b-dropdown-item class="drop-item"
-                             @click="showAddr(addr)">address</b-dropdown-item>
-            <b-dropdown-item class="drop-item"
-                             @click="showKey(addr)">public key</b-dropdown-item>
-          </b-dropdown>
           <b-form-input readonly
                         size="sm"
                         class="input-t"

@@ -24,10 +24,10 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
+import {TESTNET_NODE} from '../constants'
 export default {
     name: 'Warning',
     data() {
@@ -37,6 +37,14 @@ export default {
                 backgroundRepeat: 'no-repeat'
             }
         }
+    },
+    created() {
+        const url = TESTNET_NODE + '/blocks/height'
+        this.$http.get(url).then(response => {
+            this.$router.push('/login')
+        }, response => {
+            this.$router.push('/warning')
+        })
     }
 }
 </script>

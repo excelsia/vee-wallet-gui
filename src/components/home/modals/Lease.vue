@@ -22,6 +22,7 @@
                       :addresses="addresses"
                       :wallet-type="'hot'"
                       :default-address="defaultAddress"
+                      :default-cold-address="defaultColdAddress"
                       ref="addrInput"
                       :selected-address="selectedAddress"
                       :selected-wallet-type="selectedWalletType"></LeaseInput>
@@ -70,6 +71,7 @@
                       v-if="coldPageId===1"
                       :wallet-type="'cold'"
                       :cold-addresses="coldAddresses"
+                      :default-address="defaultAddress"
                       :default-cold-address="defaultColdAddress"
                       ref="coldAddrInput"
                       :selected-address="selectedAddress"
@@ -304,7 +306,7 @@ export default {
                 }
                 apiSchema = transaction.prepareForAPI(dataInfo, this.getKeypair(this.addresses[this.address]), LEASE_TX)
             } else if (walletType === 'coldWallet') {
-                apiSchema = transaction.prepareColdForAPI(this.dataObject, this.coldSignature, this.coldAddresses[this.coldAddress], LEASE_TX)
+                apiSchema = transaction.prepareColdForAPI(this.dataObject, this.coldSignature, this.dataObject.senderPublicKey, LEASE_TX)
             }
             const url = TESTNET_NODE + '/leasing/broadcast/lease'
             this.$http.post(url, JSON.stringify(apiSchema)).then(response => {
@@ -320,6 +322,7 @@ export default {
             }, response => {
                 this.sendError = true
             })
+            this.$emit('endLeaseSignal')
         },
         getSignature(signature, timestamp) {
             this.coldSignature = signature

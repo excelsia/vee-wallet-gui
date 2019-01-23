@@ -131,10 +131,15 @@ export default {
             this.qrError = false
             try {
                 var signature = JSON.parse(decodeString).signature
+                let tempub = JSON.parse(decodeString).publicKey
                 if (!signature) {
                     this.paused = false
                 } else {
                     var data = JSON.parse(JSON.stringify(this.dataObject))
+                    if (tempub) {
+                        this.dataObject.senderPublicKey = tempub
+                        data.senderPublicKey = tempub
+                    }
                     delete data.transactionType
                     delete data.api
                     data.timestamp *= 1e6

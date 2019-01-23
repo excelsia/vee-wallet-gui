@@ -39,7 +39,8 @@
                   :address-index="addressIndex"
                   :address="address"
                   :wallet-type="walletType"
-                  :is-canceled="beCanceledList[record.id]"></Record>
+                  :is-canceled="beCanceledList[record.id]"
+                  @endCancelSignal="endCancelSignal"></Record>
         </div>
       </div>
     </div>
@@ -147,8 +148,11 @@ export default {
         }
     },
     watch: {
-        address() {
-            this.leaseRecords = {}
+        address(newAddr, oldAddr) {
+            if (newAddr === '') {
+                return
+            }
+            this.leaseRecords = []
             this.response = []
             this.changeShowDisable = false
             this.showingNum = 10
@@ -166,20 +170,21 @@ export default {
                 const addr = this.address
                 this.changeShowDisable = true
                 const recordLimit = this.showingNum
-                this.leaseRecords = []
                 const url = TESTNET_NODE + '/transactions/address/' + addr + '/limit/' + recordLimit
                 let self = this
                 this.$http.get(url).then(response => {
+                    let rv = []
                     if (addr === this.address && recordLimit === this.showingNum) {
                         this.response = response.body[0]
                         this.response.forEach(function(v, i) {
                             if (v.type === LEASE_TX || v.type === CANCEL_LEASE_TX) {
-                                self.leaseRecords.push(v)
+                                rv.push(v)
                                 if (v.type === CANCEL_LEASE_TX) {
                                     Vue.set(self.beCanceledList, v.lease.id, true)
                                 }
                             }
                         })
+                        this.leaseRecords = rv
                         this.changeShowDisable = false
                     }
                 }, response => {
@@ -196,6 +201,9 @@ export default {
                     this.getLeaseRecords()
                 }
             }
+        },
+        endCancelSignal() {
+            this.$emit('updateInfo')
         }
     }
 }

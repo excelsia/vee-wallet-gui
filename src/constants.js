@@ -39,7 +39,7 @@ export const DEFAULT_BASIC_CONFIG = {
     timeDiff: 0
 };
 //http://localhost:19922/
-export const TESTNET_NODE = 'http://wallettestnet.vee.tech:9922'
+export const TESTNET_NODE = 'http://13.250.127.53:9922'
 
 export const ADDRESS_LENGTH = 35;
 

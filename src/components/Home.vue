@@ -28,12 +28,30 @@
                  class="pointer unselectable"
                  @click.native="selectWallet(address, 'hotWallet')">
           </Asset>
-          <div class="asset-title">
-            <img
-              src="../assets/imgs/icons/wallet/ic_wallet_line.svg"><b class="title-assets">Cold Wallet</b>
+          <div>
+            <span class="asset-title2">
+              <img
+                src="../assets/imgs/icons/wallet/ic_wallet_line.svg"><b class="title-assets">Cold Wallet</b>
+              <b-btn @click="changeflag"
+                     size="sm"
+                     align="left"
+                     variant="link">
+                <img class="sort-image"
+                     src="../assets/imgs/icons/wallet/ic_sort_down.svg">
+              </b-btn>
+            </span>
           </div>
-          <Asset v-if="coldAddresses"
+          <Asset v-if="coldAddresses&&sortflag===0"
                  v-for="(coldPubkey, coldAddress) in coldAddresses"
+                 :address="coldAddress"
+                 :key="coldAddress"
+                 :balance="balance[coldAddress]"
+                 :selected="coldAddress === selectedAddress"
+                 class="pointer unselectable"
+                 @click.native="selectWallet(coldAddress, 'coldWallet')">
+          </Asset>
+          <Asset v-if="coldAddresses&&sortflag===1"
+                 v-for="(coldPubkey, coldAddress) in sortedaddr"
                  :address="coldAddress"
                  :key="coldAddress"
                  :balance="balance[coldAddress]"
@@ -77,7 +95,8 @@
                               :balances="balance"
                               :cold-addresses="coldAddresses"
                               :total="total"
-                              :addresses="addresses"></trans-pane>
+                              :addresses="addresses"
+                              @updateInfo="updateInfo"></trans-pane>
                 </div>
                 <div class="f-records">
                   <Records :address="selectedAddress"></Records>
@@ -104,14 +123,16 @@
                              :leased-out="leasedOut"
                              :total="total"
                              :address="selectedAddress"
-                             :wallet-type="walletType">
+                             :wallet-type="walletType"
+                             @updateInfo="updateInfo">
                   </LeasePane>
                 </div>
                 <div class="f-records">
                   <LeaseRecords :address="selectedAddress"
                                 :wallet-type="walletType"
                                 :cold-pub-key="coldPubKey"
-                                :address-index="addresses[selectedAddress]"></LeaseRecords>
+                                :address-index="addresses[selectedAddress]"
+                                @updateInfo="updateInfo"></LeaseRecords>
                 </div>
               </b-tab>
             </b-tabs>
@@ -143,7 +164,9 @@ export default {
             sessionClearTimeout: void 0,
             addresses: {},
             coldAddresses: {},
+            sortedaddr: {},
             walletType: '',
+            sortflag: 0,
             transActive: 'trans',
             available: 0,
             leasedIn: 0,
@@ -151,7 +174,6 @@ export default {
             total: 0
         }
     },
-
     created() {
         if (!this.address || !Vue.ls.get('pwd')) {
             this.$router.push('/login')
@@ -159,9 +181,16 @@ export default {
             this.getBalance(this.address)
             this.setUsrLocalStorage('lastLogin', new Date().getTime())
             this.selectedAddress = this.address
+            var unsortedColdAddresses = {}
+            var sortedColdAddresses = {}
             if (this.userInfo && this.userInfo.coldAddresses) {
-                this.coldAddresses = JSON.parse(this.userInfo.coldAddresses)
+                unsortedColdAddresses = JSON.parse(this.userInfo.coldAddresses)
             }
+            Object.keys(unsortedColdAddresses).sort().forEach(function(key) {
+                sortedColdAddresses[key] = unsortedColdAddresses[key]
+            })
+            this.coldAddresses = unsortedColdAddresses
+            this.sortedaddr = sortedColdAddresses
             this.getAddresses()
             for (const addr in this.addresses) {
                 this.getBalance(addr)
@@ -169,10 +198,10 @@ export default {
             for (const addr in this.coldAddresses) {
                 this.getBalance(addr)
             }
-            this.getBalance(this.selectedAddress)
+            window.localStorage.setItem('keepLogin_addr', this.address)
+            window.localStorage.setItem('keepLogin_pwd', Vue.ls.get('pwd'))
         }
     },
-
     mounted() {
         this.setSessionClearTimeout()
     },
@@ -248,17 +277,34 @@ export default {
         getBalance: function(address) {
             const url = TESTNET_NODE + '/addresses/balance/details/' + address
             this.$http.get(url).then(response => {
-                Vue.set(this.balance, address, response.body['available'] / VEE_PRECISION)
-                this.total = response.body.regular / VEE_PRECISION
-                this.available = response.body.available / VEE_PRECISION
-                this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
-                this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
+                let value = response.body['available'] / VEE_PRECISION
+                let changestatus = value === this.balance[address]
+                Vue.set(this.balance, address, value)
+                if (address === this.selectedAddress) {
+                    this.total = response.body.regular / VEE_PRECISION
+                    this.available = response.body.available / VEE_PRECISION
+                    this.leasedOut = (response.body.regular - response.body.available) / VEE_PRECISION
+                    this.leasedIn = (response.body.effective - response.body.available) / VEE_PRECISION
+                    if (!changestatus) {
+                        let addrtmp = this.selectedAddress
+                        this.selectedAddress = ''
+                        setTimeout(() => {
+                            this.selectedAddress = addrtmp
+                        }, 0)
+                    }
+                }
             }, response => {
                 this.$router.push('/warning')
             })
         },
         importCold(coldAddress, pubKey) {
-            Vue.set(this.coldAddresses, coldAddress, !pubKey ? '' : pubKey)
+            Vue.set(this.coldAddresses, coldAddress, !pubKey ? coldAddress : pubKey)
+            let tempAddr = {}
+            let tempAddr2 = this.coldAddresses
+            Object.keys(tempAddr2).sort().forEach(function(key) {
+                tempAddr[key] = tempAddr2[key]
+            })
+            this.sortedaddr = tempAddr
             this.getBalance(coldAddress)
             this.setUsrLocalStorage('coldAddresses', JSON.stringify(this.coldAddresses))
         },
@@ -295,6 +341,7 @@ export default {
         },
         deleteCold(addr) {
             Vue.delete(this.coldAddresses, addr)
+            Vue.delete(this.sortedaddr, addr)
             this.setUsrLocalStorage('coldAddresses', JSON.stringify(this.coldAddresses))
         },
         getAddresses() {
@@ -305,6 +352,22 @@ export default {
                 Vue.set(this.addresses, seed.address, index)
             }
             return addresses
+        },
+        changeflag() {
+            if (this.sortflag === 0) this.sortflag = 1
+            else if (this.sortflag === 1) this.sortflag = 0
+        },
+        updateInfo() {
+            for (let delayTime = 6000; delayTime < 301000; delayTime *= 7) {
+                setTimeout(() => {
+                    for (const addr in this.addresses) {
+                        this.getBalance(addr)
+                    }
+                    for (const addr in this.coldAddresses) {
+                        this.getBalance(addr)
+                    }
+                }, delayTime)
+            }
         }
     },
 
@@ -404,5 +467,13 @@ export default {
 }
 .tab-pane {
     padding: 0 !important;
+}
+.sort-image {
+     margin-left: 45px;
+}
+.asset-title2 {
+    padding: 10px;
+    margin-top: 10px;
+    width:350px;
 }
 </style>

@@ -5,11 +5,11 @@ COPY package*.json ./
 RUN npm i -f
 COPY . .
 RUN npm run build
-RUN apk --no-cache add bash openssl \
- && openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
-    -subj '/CN=vee-wallet' \
-    -keyout vee_wallet.key \
-    -out vee_wallet.crt
+#RUN apk --no-cache add bash openssl \
+# && openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
+#    -subj '/CN=vee-wallet' \
+#    -keyout vee_wallet.key \
+#    -out vee_wallet.crt
 
 # production stage
 FROM nginx:1.13.12-alpine as production-stage

@@ -186,7 +186,7 @@ export default {
                     this.page = 'cold'
                     return
                 } else {
-                    apiSchema = transaction.prepareColdForAPI(this.dataObject, this.coldSignature, this.coldPubKey, CANCEL_LEASE_TX)
+                    apiSchema = transaction.prepareColdForAPI(this.dataObject, this.coldSignature, this.dataObject.senderPublicKey, CANCEL_LEASE_TX)
                 }
             } else {
                 if (this.hasConfirmed) {
